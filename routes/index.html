@@ -1,0 +1,81 @@
+<script src="/javascripts/jquery-3.6.3.js"></script>
+<script src="/javascripts/ElasticRequest.js"></script>
+
+<style type="text/css">
+  #search {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+  }
+
+  table.elastic-result {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #ddd;
+  }
+  table.elastic-result th,
+  table.elastic-result td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+</style>
+
+<script>
+  $(document).ready(() => {
+    const elastic = ElasticRequest({
+      url: "/search",
+      path: "/kcure_com_dts_col_dfnd/_search",
+    });
+
+    $("#search").keyup(async (e) => {
+      if (e.keyCode === 13) {
+        const search = e.target.value;
+        const query = {
+          bool: {
+            minimum_should_match: 1,
+            should: [
+              {
+                match: { col_enm: search },
+              },
+              {
+                match: { col_knm: search },
+              },
+              {
+                match: { col_expl_cont: search },
+              },
+            ],
+          },
+        };
+        const rows = await elastic.search(query);
+
+        const template = `<tr>
+          <td>{{col_enm}}</td>
+          <td>{{col_knm}}</td>
+          <td>{{col_expl_cont}}</td>
+        </tr>`;
+        let html = "";
+        rows.forEach(({ col_enm, col_knm, col_expl_cont }) => {
+          html += template
+            .replaceAll("{{col_enm}}", col_enm)
+            .replaceAll("{{col_knm}}", col_knm)
+            .replaceAll("{{col_expl_cont}}", col_expl_cont);
+        });
+        $("#tbodyResult").html(html);
+      }
+    });
+  });
+</script>
+
+<input type="text" id="search" />
+<table class="elastic-result">
+  <thead>
+    <tr>
+      <th scope="col">컬럼영문명</th>
+      <th scope="col">컬럼한글명</th>
+      <th scope="col">컬럼설명내용</th>
+    </tr>
+  </thead>
+  <tbody id="tbodyResult"></tbody>
+</table>
