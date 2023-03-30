@@ -18,4 +18,4 @@ Elasticsearch interface between Javascript and server side.
 
 ## Download
 
-- [InputElastic.js](public/javascripts/ElasticRequest.js)
+- [ElasticRequest.js](public/javascripts/ElasticRequest.js)
