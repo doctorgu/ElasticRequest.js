@@ -17,7 +17,11 @@ function ElasticRequest({ url, path }) {
 
     const response = await fetch(url, requestOptions);
     const result = await response.json();
-    return result;
+    if (typeof result === "string") {
+      return JSON.parse(result);
+    } else {
+      return result;
+    }
   }
 
   function getRows(result) {
